@@ -1,0 +1,36 @@
+package org.o7planning.redirect301;
+ 
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+ 
+@WebServlet("/*")
+public class MyServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+ 
+    public MyServlet() {
+        super();
+    }
+ 
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+ 
+        response.setContentType("text/html");
+        String text = "<h2>Hello</h2>"//
+                + "You are in URL: <br/>"//
+                + "<h3>" + request.getRequestURL() + "</h3>";
+        
+        response.getWriter().print(text);
+    }
+ 
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        doGet(request, response);
+    }
+ 
+}
