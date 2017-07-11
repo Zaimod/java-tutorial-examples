@@ -14,39 +14,37 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-/**
- * Symfony framework security component was inspired after spring security
- * 
- * @author ovidiu.dragoi
- *
- */
 @Service
 public class MyDBAuthenticationService implements UserDetailsService {
+
 	@Autowired
 	private UserInfoDAO userInfoDAO;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		UserInfo userInfo = userInfoDAO.findUserInfo(username);
-		
-		System.out.println("UserInfo= "+ userInfo);
-		
-		//[USER, ADMIN]
+		System.out.println("UserInfo= " + userInfo);
+
+		if (userInfo == null) {
+			throw new UsernameNotFoundException("User " + username + " was not found in the database");
+		}
+
+		// [USER,ADMIN,..]
 		List<String> roles = userInfoDAO.getUserRoles(username);
-		
-		List<GrantedAuthority> grantList = new ArrayList<>();
-		
-		if(roles != null) {
-			for(String role: roles) {
-				//ROLE_USER, ROLE_ADMIN
+
+		List<GrantedAuthority> grantList = new ArrayList<GrantedAuthority>();
+		if (roles != null) {
+			for (String role : roles) {
+				// ROLE_USER, ROLE_ADMIN,..
 				GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role);
 				grantList.add(authority);
 			}
 		}
-		
-		UserDetails userDetails = (UserDetails) new User(userInfo.getUserName(), userInfo.getPassword(), grantList);
-		
+
+		UserDetails userDetails = (UserDetails) new User(userInfo.getUserName(), //
+				userInfo.getPassword(), grantList);
+
 		return userDetails;
-		
 	}
+
 }
