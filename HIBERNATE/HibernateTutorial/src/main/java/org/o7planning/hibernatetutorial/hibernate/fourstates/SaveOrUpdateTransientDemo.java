@@ -1,6 +1,5 @@
 package org.o7planning.hibernatetutorial.hibernate.fourstates;
 
-import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -12,56 +11,54 @@ import org.o7planning.hibernatetutorial.hibernate.HibernateUtils;
 import org.o7planning.hibernatetutorial.entities.Employee;
 import org.o7planning.hibernatetutorial.entities.Timekeeper;
 
-public class SaveTransientDemo {
+public class SaveOrUpdateTransientDemo {
+	
 	private static DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-
-	private static Timekeeper persist_Transient(Session session, Employee emp) {
+	
+	private static Timekeeper saveOrUpdate_Transient(Session session, Employee emp) {
 
 		// See configuration of timekeeperId:
 		// @GeneratedValue(generator = "uuid")
 		// @GenericGenerator(name = "uuid", strategy = "uuid2")
 		// Create an Object, Transitent state.
-		Timekeeper tk2 = new Timekeeper();
+		Timekeeper tk3 = new Timekeeper();
 
-		tk2.setEmployee(emp);
-		tk2.setInOut(Timekeeper.IN);
-		tk2.setDateTime(new Date());
+		tk3.setEmployee(emp);
+		tk3.setInOut(Timekeeper.IN);
+		tk3.setDateTime(new Date());
 
 		// Now 'tk3' are state Transient.
-		System.out.println("- tk2 Persistent? " + session.contains(tk2));
+		System.out.println("- tk3 Persistent? " + session.contains(tk3));
 
-		System.out.println("====== CALL save(tk).... ===========");
+		System.out.println("====== CALL saveOrUpdate(tk).... ===========");
 
-		// save() very similar to persist()
-		// save() return ID, persist() return void.
-		// Hibernate assign ID value to 'tk2', no action with DB
-		// And return ID of 'tk2'.
-		Serializable id = session.save(tk2);
+		// Here Hibernate checks, 'tk3' have ID or not (timekeeperId)
+		// If no, it will be assigned automatically
+		session.saveOrUpdate(tk3);
 
-		System.out.println("- id = " + id);
+		System.out.println("- tk3.getTimekeeperId() = " + tk3.getTimekeeperId());
 
-		//
-		System.out.println("- tk2.getTimekeeperId() = " + tk2.getTimekeeperId());
-
-		// Now, 'tk2' has Persistent state
+		// Now 'tk3' has Persistent state
 		// It has been managed in Session.
+		// But no action insert, or update to DB.
 		// ==> true
-		System.out.println("- tk2 Persistent? " + session.contains(tk2));
+		System.out.println("- tk3 Persistent? " + session.contains(tk3));
 
 		System.out.println("- Call flush..");
 
 		// To push data into the DB, call flush().
 		// If not call flush() data will be pushed to the DB when calling
 		// commit().
-		// Will execute insert statement.
+		// Now possible to Insert or Update DB. (!!!)
+		// Depending on the ID of 'tk3' exists in the DB or not
 		session.flush();
 
-		String timekeeperId = tk2.getTimekeeperId();
+		String timekeeperId = tk3.getTimekeeperId();
 		System.out.println("- timekeeperId = " + timekeeperId);
-		System.out.println("- inOut = " + tk2.getInOut());
-		System.out.println("- dateTime = " + df.format(tk2.getDateTime()));
+		System.out.println("- inOut = " + tk3.getInOut());
+		System.out.println("- dateTime = " + df.format(tk3.getDateTime()));
 		System.out.println();
-		return tk2;
+		return tk3;
 	}
 
 	public static void main(String[] args) {
@@ -74,7 +71,7 @@ public class SaveTransientDemo {
 
 			emp = DataUtils.findEmployee(session, "E7499");
 
-			persist_Transient(session, emp);
+			saveOrUpdate_Transient(session, emp);
 
 			session.getTransaction().commit();
 		} catch (Exception e) {

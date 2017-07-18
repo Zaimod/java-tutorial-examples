@@ -1,0 +1,14 @@
+drop table DEPARTMENT cascade constraints;
+drop table EMPLOYEE cascade constraints;
+drop table SALARY_GRADE cascade constraints;
+drop table TIMEKEEPER cascade constraints;
+create table DEPARTMENT (DEPT_ID number(10,0) not null, DEPT_NAME varchar2(255) not null, DEPT_NO varchar2(20) not null, LOCATION varchar2(255), primary key (DEPT_ID));
+create table EMPLOYEE (EMP_ID number(19,0) not null, EMP_NAME varchar2(50) not null, EMP_NO varchar2(20) not null, HIRE_DATE date not null, IMAGE blob, JOB varchar2(30) not null, SALARY float not null, DEPT_ID number(10,0) not null, MNG_ID number(19,0), primary key (EMP_ID));
+create table SALARY_GRADE (GRADE number(10,0) not null, HIGH_SALARY float not null, LOW_SALARY float not null, primary key (GRADE));
+create table TIMEKEEPER (Timekeeper_Id varchar2(36) not null, Date_Time date not null, In_Out char(1) not null, EMP_ID number(19,0) not null, primary key (Timekeeper_Id));
+alter table DEPARTMENT add constraint UK504cmb4vdtk4qhlyo0gunu2ew unique (DEPT_NO);
+alter table EMPLOYEE add constraint UK7fqco7dry69w4ba8sh8qn21b unique (EMP_NO);
+alter table EMPLOYEE add constraint FK65bgags9wjppbn5x7vjcqhext foreign key (DEPT_ID) references DEPARTMENT;
+alter table EMPLOYEE add constraint FKkcawqtfitoe3w528metq1o03c foreign key (MNG_ID) references EMPLOYEE;
+alter table EMPLOYEE add constraint FK2a6tjfuq36r7idhfm7y9gscqu foreign key (EMP_ID) references EMPLOYEE;
+alter table TIMEKEEPER add constraint FKifwkxix749p4scwkaeybcj4uc foreign key (EMP_ID) references EMPLOYEE;

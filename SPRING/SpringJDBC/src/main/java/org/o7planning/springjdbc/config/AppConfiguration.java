@@ -10,7 +10,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import org.springframework.jdbc.datasource.init.DatabasePopulator;
+import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 @Configuration
 @ComponentScan({ "org.o7planning.springjdbc" })
@@ -33,6 +39,12 @@ public class AppConfiguration {
 		dataSource.setUrl(env.getProperty("ds.url"));
 		dataSource.setUsername(env.getProperty("ds.username"));
 		dataSource.setPassword(env.getProperty("ds.password"));
+
+		// schema init
+		Resource initSchema = new ClassPathResource("script/schema.sql");
+		DatabasePopulator databasePopulator = new ResourceDatabasePopulator(initSchema);
+		DatabasePopulatorUtils.execute(databasePopulator, dataSource);
+
 
 		System.out.println("## getDatasource :" + dataSource);
 		return dataSource;
